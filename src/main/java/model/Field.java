@@ -39,11 +39,10 @@ public class Field {
 	 	piece = null;
 	}
 	
-	private Field(Point p, int value, Polygon hex, Piece piece) {
+	private Field(Point p, int value, Polygon hex) {
 		this.xy = p;
 		this.value = value;
 		this.hex = hex;
-		this.piece = piece;
 		neighbours = new Field[6];
 	}
 	
@@ -78,7 +77,7 @@ public class Field {
 	
 	@Override
 	public Field clone() {
-		return new Field(new Point(xy.x, xy.y), value, new Polygon(hex.xpoints, hex.ypoints, 6), piece.clone());
+		return new Field(new Point(xy.x, xy.y), value, new Polygon(hex.xpoints, hex.ypoints, 6));
 	}
 	
 	@Override
