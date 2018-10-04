@@ -11,7 +11,7 @@ import model.Node;
 
 public class AlphaBetaNegaMax extends ArtificialIntelligence {
 
-	private static int MAX_DEPTH = 2;
+	private static int MAX_DEPTH = 1;
 	private int turn_counter;
 
 	public AlphaBetaNegaMax(int number) {

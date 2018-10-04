@@ -29,11 +29,11 @@ public class OmegaLogic extends Observable implements MouseListener, Runnable{
 		turnCount = 1;
 		
 		ais = new ArrayList<ArtificialIntelligence>();
-//		AlphaBetaNegaMax abnm = new AlphaBetaNegaMax(0, board);
-//		ais.add(abnm);
+		AlphaBetaNegaMax abnm = new AlphaBetaNegaMax(0);
+		ais.add(abnm);
 		
-		GwensExperimental gw = new GwensExperimental(0);
-		ais.add(gw);
+//		GwensExperimental gw = new GwensExperimental(0);
+//		ais.add(gw);
 //		GwensExperimental gw2 = new GwensExperimental(1);
 //		ais.add(gw2);
 //		HumanPlayer human = new HumanPlayer(2,board);
