@@ -7,7 +7,7 @@ public class OmegaMain {
 	
 	public static final int DEBUG = 2;
 	public static final int NUMBER_OF_PLAYERS = 2;
-	public static final int BOARDSIZE = 3;
+	public static final int BOARDSIZE = 5;
 	
 	public enum players {
 		White,

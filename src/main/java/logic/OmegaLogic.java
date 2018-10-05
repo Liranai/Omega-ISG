@@ -61,6 +61,8 @@ public class OmegaLogic extends Observable implements MouseListener, Runnable{
 			
 			Move move = ais.get(turnCount - 1).getMove(board.clone());
 			
+			System.out.println("AI: " + ais.get(turnCount - 1).getName() + " move: " + move.getFields().get(0).getXy() + "," + move.getFields().get(1).getXy());
+			
 			for (int i = 0; i < move.getFields().size(); i++) {
 				board.getFields().get(move.getFields().get(i).getXy()).setValue(i + 1);
 			}

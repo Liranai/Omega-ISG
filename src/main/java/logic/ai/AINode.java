@@ -16,6 +16,12 @@ public class AINode {
 		this.board = board;
 		this.move = move;
 		this.parent = parent;
+		makeMove();
+	}
+	
+	private void makeMove() {
+		if(move != null)
+		board.getFields().get(move.getField().getXy()).setValue(move.getColour());
 	}
 	
 	public boolean isTerminal() {
