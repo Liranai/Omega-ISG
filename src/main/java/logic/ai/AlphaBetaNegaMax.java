@@ -10,7 +10,7 @@ import model.util.Pair;
 
 public class AlphaBetaNegaMax extends ArtificialIntelligence {
 
-	private static int MAX_DEPTH = 3;
+	private static int MAX_DEPTH = 2;
 	private int turn_counter;
 	private static AINode best;
 	private static long bestscore;
@@ -73,7 +73,7 @@ public class AlphaBetaNegaMax extends ArtificialIntelligence {
 					result = alphaBetaNega(new AINode(state.getBoard().clone(), childMove, state), depth + 1, -beta, -alpha, 0, total_steps);
 					value = -result.getFirst();
 				}
-				if(value > score) {score = value; select = result.getSecond(); System.out.println("abNega " + depth + " s:" + step_number + " max:" + total_steps);}
+				if(value > score) {score = value; select = result.getSecond();}
 				if(score > alpha) alpha = score;
 				if(score >= beta) break;
 			}

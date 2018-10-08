@@ -78,4 +78,10 @@ public class OmegaFrame extends JFrame{
         setLocationRelativeTo(null);
         System.out.println(this.getSize());
     }
+    
+    @Override
+    public synchronized void addMouseListener(MouseListener l) {
+    	super.addMouseListener(l);
+    	boardPanel.addMouseListener(l);
+    }
 }

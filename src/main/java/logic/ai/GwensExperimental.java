@@ -55,7 +55,7 @@ public class GwensExperimental extends ArtificialIntelligence{
 			}
 		}
 		
-		System.out.println("MOVE " + super.playerNumber + ": W: " + maxNode.getMove().getFields().get(0).getXy().x + "," + maxNode.getMove().getFields().get(0).getXy().y + " B:" +maxNode.getMove().getFields().get(1).getXy().x + "," + maxNode.getMove().getFields().get(1).getXy().y);
+//		System.out.println("MOVE " + super.playerNumber + ": W: " + maxNode.getMove().getFields().get(0).getXy().x + "," + maxNode.getMove().getFields().get(0).getXy().y + " B:" +maxNode.getMove().getFields().get(1).getXy().x + "," + maxNode.getMove().getFields().get(1).getXy().y);
 		
 		return maxNode.getMove();
 	}		
@@ -167,7 +167,7 @@ public class GwensExperimental extends ArtificialIntelligence{
 			}
 		}
 		
-		for(Pair<Integer, ArrayList<Point>> group : groups.getFirst()) {
+		for(Pair<Integer, ArrayList<Point>> group : (this.playerNumber == 1 ? groups.getFirst() : groups.getSecond())) {
 			switch(group.getFirst()){
 				case 1:
 					for(Field neighbour : board.getFields().get(group.getSecond().get(0)).getNeighbours()) {
@@ -193,7 +193,7 @@ public class GwensExperimental extends ArtificialIntelligence{
 					break;
 			}
 		}
-		for(Pair<Integer, ArrayList<Point>> group : groups.getSecond()) {
+		for(Pair<Integer, ArrayList<Point>> group : (this.playerNumber == 1 ? groups.getSecond() : groups.getFirst())) {
 			switch(group.getFirst()){
 				case 1:
 					for(Field neighbour : board.getFields().get(group.getSecond().get(0)).getNeighbours()) {
