@@ -53,6 +53,8 @@ public class HumanPlayer extends ArtificialIntelligence implements MouseListener
 			for (Field field : currentBoard.getFields().values()) {
 				if (field.getHex().contains(e.getPoint())) {
 					selection = field;
+					setChanged();
+					notifyObservers(selection);
 				}
 			}
 		}

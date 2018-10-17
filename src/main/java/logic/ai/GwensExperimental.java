@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import main.OmegaMain;
 import model.Board;
 import model.Field;
 import model.Move;
@@ -14,9 +15,10 @@ import model.util.Pair;
 public class GwensExperimental extends ArtificialIntelligence{
 
 	public static int MAX_DEPTH = 1;
-	public static final int POMISING_FIELDS_TO_CONSIDER = 10;
+	public static final int PROMISING_FIELDS_TO_CONSIDER = 10;
 	
 	private int turn_counter;
+	private static int nodes = 0;
 	private HashMap<Point, Pair<Integer, Integer>> heatMap;
 	
 	public GwensExperimental(int number) {
@@ -31,125 +33,108 @@ public class GwensExperimental extends ArtificialIntelligence{
 
 	@Override
 	public Move getMove(Board board) {
-		turn_counter++;
-		if(turn_counter % 5 == 0) {
-			MAX_DEPTH++;
-		}
+		nodes = 0;
+		long time = System.currentTimeMillis();
+//		turn_counter++;
+		
+//		if(turn_counter % 5 == 0) {
+//			MAX_DEPTH++;
+//		}
 		
 		heatMap = generateHeatMap(board);
-		
-		
-		ArrayList<Move> moves = generateMoves(heatMap, board, POMISING_FIELDS_TO_CONSIDER);
 		
 		setChanged();
 		notifyObservers(heatMap);
 		
-		Node maxNode = null;
-		for (Move move : moves) {
-			Node root = new Node(board.clone(), move, null);
-			root.setAbvalue(alphaBeta(root, 0, Long.MIN_VALUE, Long.MAX_VALUE, true));
-			if (maxNode == null) {
-				maxNode = root;
-			} else if (root.getAbvalue() > maxNode.getAbvalue()) {
-				maxNode = root;
-			}
+		AINode root = new AINode(board.clone(),null,null);
+		Pair<Long, AINode> result = alphaBetaNega(root, 0, Long.MIN_VALUE, Long.MAX_VALUE, 0, OmegaMain.NUMBER_OF_PLAYERS);
+		System.out.println("BEST VALUE " + result.getFirst());
+		
+		AINode maxNode = result.getSecond();
+		AINode maxNode2 = null;
+		while(maxNode.getParent() != root) {
+			maxNode2 = maxNode;
+			maxNode = maxNode.getParent();
 		}
 		
-//		System.out.println("MOVE " + super.playerNumber + ": W: " + maxNode.getMove().getFields().get(0).getXy().x + "," + maxNode.getMove().getFields().get(0).getXy().y + " B:" +maxNode.getMove().getFields().get(1).getXy().x + "," + maxNode.getMove().getFields().get(1).getXy().y);
-		
-		return maxNode.getMove();
+		Move move = new Move(maxNode.getMove().getField(), maxNode2.getMove().getField());
+		System.out.println("NODES EXPLORED: " + nodes + " in " + (System.currentTimeMillis() - time));
+		return move;
 	}		
 	
-	private ArrayList<Move> generateMoves(HashMap<Point, Pair<Integer,Integer>> map, Board board, int n){
-		ArrayList<Move> moves = new ArrayList<Move>();
-		
-		HashMap<Point, Integer> flatmap = new HashMap<Point, Integer>();
-		for(Point p : map.keySet()) {
-			flatmap.put(p, map.get(p).getFirst() - map.get(p).getSecond());
-		}
-		
-		Point[] jericho = new Point[n];
-		
-		int minValue = Integer.MAX_VALUE;
-		int index = 0;
-		for(Point p : flatmap.keySet()) {
-			if(index < n) {
-				jericho[index] = p;
-				index++;
-				if(flatmap.get(p) < minValue) {
-					minValue = flatmap.get(p);
+	private ArrayList<AIMove> getMoves(HashMap<Point, Pair<Integer,Integer>> map, Board board, int number_of_nodes, int colour){
+			ArrayList<AIMove> availableMoves = new ArrayList<AIMove>();
+			
+			
+			
+			for(Field field : board.getFields().values()) {
+				if(field.getValue() == 0) {
+					availableMoves.add(new AIMove(field, colour));
 				}
 			}
-			if(flatmap.get(p) > minValue) {
-				for(int i = 0; i < jericho.length; i++) {
-					if(flatmap.get(jericho[i]) == minValue) {
-						jericho[i] = p;
-						minValue = flatmap.get(p);
-						break;
-					}
-				}
-				for(int i = 0; i < jericho.length; i++) {
-					if(jericho[i] != null && flatmap.get(jericho[i]) < minValue)
-						minValue = flatmap.get(jericho[i]);
-				}
-			}
-		}
-		
-		for(int i = 0; i < jericho.length; i++) {
-			for (int j = 0; j < jericho.length; j++) {
-				if(i == j) continue;
-				moves.add(new Move(board.getFields().get(jericho[i]), board.getFields().get(jericho[j])));
-			}
-		}
-		
-//		
-//		for(Point p1 : map.keySet()) {
-//			if(board.getFields().get(p1).getValue() != 0)
-//				continue;
-//			for(Point p2 : map.keySet()) {
-//				if(p1.equals(p2))
-//					continue;
-//				if(board.getFields().get(p2).getValue() != 0)
-//					continue;
-//				moves.add(new Move(board.getFields().get(p1), board.getFields().get(p2)));
-//			}
-//		}
-		
-		return moves;
+			
+			return availableMoves;
 	}
 	
-	public long alphaBeta(Node node, int depth, long alpha, long beta, boolean min_max) {
-		// viewer.drawState(node.getState());
-		node.calculateValue(super.playerNumber);
-		if (depth == MAX_DEPTH) {
-			return node.getValue();
-		}
-		ArrayList<Move> moves = generateMoves(generateHeatMap(node.getBoard()), node.getBoard(), POMISING_FIELDS_TO_CONSIDER);
-		if(depth < 2)
-//			System.out.println("Depth: " + depth);
-		node.setChildren(moves);
-		if (min_max) {
-			long value = Long.MIN_VALUE;
-			for (Node child : node.getChildren()) {
-				value = Math.max(value, alphaBeta(child, depth + 1, alpha, beta, !min_max));
-				alpha = Math.max(alpha, value);
-				if (beta <= alpha)
-					break;
-			}
-			node.getChildren().clear();
-			return value;
+	private Pair<Long, AINode> alphaBetaNega(AINode state, int depth, long alpha, long beta, int step_number, int total_steps) {
+		nodes++;
+//		System.out.println("abNega " + depth + " s:" + step_number + " max:" + total_steps);
+		if(state.isTerminal() || depth == MAX_DEPTH) {
+			return new Pair<Long, AINode>(state.evaluate((depth + this.playerNumber) % 2), state);
 		} else {
-			long value = Long.MAX_VALUE;
-			for (Node child : node.getChildren()) {
-				value = Math.min(value, alphaBeta(child, depth + 1, alpha, beta, !min_max));
-				beta = Math.min(beta, value);
-				if (beta <= alpha)
-					break;
+			long score = Long.MIN_VALUE;
+			AINode select = null;
+			ArrayList<AIMove> moves = getMoves(generateHeatMap(state.getBoard()), state.getBoard(), PROMISING_FIELDS_TO_CONSIDER, step_number + 1);
+			for(AIMove childMove : moves) {
+				long value = 0;
+				Pair<Long, AINode> result;
+				if(step_number < total_steps - 1) {
+					result = alphaBetaNega(new AINode(state.getBoard().clone(), childMove, state), depth, alpha, beta, step_number + 1, total_steps);
+					value = result.getFirst();
+				} else {
+					result = alphaBetaNega(new AINode(state.getBoard().clone(), childMove, state), depth + 1, -beta, -alpha, 0, total_steps);
+					value = -result.getFirst();
+				}
+				if(value > score) {score = value; select = result.getSecond();}
+				if(score > alpha) alpha = score;
+				if(score >= beta) break;
 			}
-			node.getChildren().clear();
-			return value;
+			return new Pair<Long, AINode>(score, select);
 		}
 	}
+	
+//	public long alphaBeta(Node node, int depth, long alpha, long beta, boolean min_max) {
+//		// viewer.drawState(node.getState());
+//		node.calculateValue(super.playerNumber);
+//		if (depth == MAX_DEPTH) {
+//			return node.getValue();
+//		}
+//		ArrayList<Move> moves = generateMoves(generateHeatMap(node.getBoard()), node.getBoard(), POMISING_FIELDS_TO_CONSIDER);
+//		if(depth < 2)
+////			System.out.println("Depth: " + depth);
+//		node.setChildren(moves);
+//		if (min_max) {
+//			long value = Long.MIN_VALUE;
+//			for (Node child : node.getChildren()) {
+//				value = Math.max(value, alphaBeta(child, depth + 1, alpha, beta, !min_max));
+//				alpha = Math.max(alpha, value);
+//				if (beta <= alpha)
+//					break;
+//			}
+//			node.getChildren().clear();
+//			return value;
+//		} else {
+//			long value = Long.MAX_VALUE;
+//			for (Node child : node.getChildren()) {
+//				value = Math.min(value, alphaBeta(child, depth + 1, alpha, beta, !min_max));
+//				beta = Math.min(beta, value);
+//				if (beta <= alpha)
+//					break;
+//			}
+//			node.getChildren().clear();
+//			return value;
+//		}
+//	}
 	
 	private HashMap<Point, Pair<Integer, Integer>> generateHeatMap(Board board) {
 		Pair<HashSet<Pair<Integer, ArrayList<Point>>>, HashSet<Pair<Integer, ArrayList<Point>>>> groups = getGroups(board.clone(), super.playerNumber);
@@ -253,6 +238,4 @@ public class GwensExperimental extends ArtificialIntelligence{
 		}
 		return list;
 	}
-	
-	
 }

@@ -30,10 +30,10 @@ public class OmegaLogic extends Observable implements MouseListener, Runnable{
 		turnCount = 1;
 		
 		ais = new ArrayList<ArtificialIntelligence>();
-//		GwensExperimental gw = new GwensExperimental(0);
-//		ais.add(gw);
+		GwensExperimental gw = new GwensExperimental(0);
+		ais.add(gw);
 		
-		AlphaBetaNegaMax abnm = new AlphaBetaNegaMax(0);
+		AlphaBetaNegaMax abnm = new AlphaBetaNegaMax(1);
 		ais.add(abnm);
 		
 		
@@ -41,10 +41,10 @@ public class OmegaLogic extends Observable implements MouseListener, Runnable{
 //		ais.add(gw2);
 //		HumanPlayer human = new HumanPlayer(1);
 //		ais.add(human);
-		for (int i = 1; i < OmegaMain.NUMBER_OF_PLAYERS; i++) {
-			RandomMover mover = new RandomMover(i);
-			ais.add(mover);
-		}
+//		for (int i = 1; i < OmegaMain.NUMBER_OF_PLAYERS; i++) {
+//			RandomMover mover = new RandomMover(i);
+//			ais.add(mover);
+//		}
 	}
 	
 	public void addFrame(OmegaFrame frame) {
@@ -54,9 +54,9 @@ public class OmegaLogic extends Observable implements MouseListener, Runnable{
 				ai.addObserver(frame.getBoardPanel());
 			} else if(ai.getClass().equals(HumanPlayer.class)) {
 				frame.addMouseListener((HumanPlayer)ai);
+				ai.addObserver(frame.getBoardPanel());
 			}
 		}
-//		gw.addObserver(frame.getBoardPanel());
 	}
 	
 	@Override
@@ -81,12 +81,6 @@ public class OmegaLogic extends Observable implements MouseListener, Runnable{
 			} else {
 				System.out.println("INVALID MOVE MADE BY " + ais.get(turnCount - 1).getName());
 			}
-			
-//			try {
-//				Thread.sleep(2000);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
 		}
 		System.out.println("GAME OVER");
 		long[] score = board.getScore();

@@ -3,6 +3,7 @@ package model;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 
 import lombok.Getter;
@@ -30,13 +31,40 @@ public class Board {
 		hashedEmpty = new long[hashedFields.length];
 		hashedWhites = new long[hashedFields.length];
 		hashedBlacks = new long[hashedFields.length];
+		HashSet<Long> uniqueHashes = new HashSet<Long>();
 		
 		Random rand = new Random(System.currentTimeMillis());
+		
 		for(int i = 0; i< hashedFields.length; i++) {
-			hashedEmpty[i] = rand.nextLong();
-			hashedWhites[i] = rand.nextLong();
-			hashedBlacks[i] = rand.nextLong();
+			long rand_num = rand.nextInt(Integer.MAX_VALUE);
+			if(uniqueHashes.contains(rand_num)) {
+				i--; System.out.println("Type-1 Error when generating hashes"); continue; 
+			}
+			uniqueHashes.add(rand_num);
+			hashedEmpty[i] = rand_num;
 		}
+		for(int i = 0; i< hashedFields.length; i++) {
+			long rand_num = rand.nextInt(Integer.MAX_VALUE);
+			if(uniqueHashes.contains(rand_num)) {
+				i--; System.out.println("Type-1 Error when generating hashes"); continue; 
+			}
+			uniqueHashes.add(rand_num);
+			hashedWhites[i] = rand_num;
+		}
+		for(int i = 0; i< hashedFields.length; i++) {
+			long rand_num = rand.nextInt(Integer.MAX_VALUE);
+			if(uniqueHashes.contains(rand_num)) {
+				i--; System.out.println("Type-1 Error when generating hashes"); continue; 
+			}
+			uniqueHashes.add(rand_num);
+			hashedBlacks[i] = rand_num;
+		}
+		if(OmegaMain.DEBUG >= 3)
+			for(int i = 0; i< hashedFields.length; i++) {
+	//			System.out.println(hashedEmpty[i] + " " + hashedWhites[i] + " " + hashedBlacks[i]);
+				System.out.println(hashedWhites[i] ^ hashedBlacks[i]);
+			}
+		
 		
 		fields = new HashMap<Point, Field>();
 		

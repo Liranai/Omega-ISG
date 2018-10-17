@@ -12,8 +12,7 @@ public class AlphaBetaNegaMax extends ArtificialIntelligence {
 
 	private static int MAX_DEPTH = 2;
 	private int turn_counter;
-	private static AINode best;
-	private static long bestscore;
+	private static int nodes = 0;
 
 	public AlphaBetaNegaMax(int number) {
 		super(number);
@@ -27,9 +26,10 @@ public class AlphaBetaNegaMax extends ArtificialIntelligence {
 
 	
 	public Move getMove(Board board) {
+		nodes = 0;
+		long time = System.currentTimeMillis();
+		
 		AINode root = new AINode(board.clone(),null,null);
-		best = root;
-		bestscore = 0;
 		Pair<Long, AINode> result = alphaBetaNega(root, 0, Long.MIN_VALUE, Long.MAX_VALUE, 0, OmegaMain.NUMBER_OF_PLAYERS);
 		System.out.println("BEST VALUE " + result.getFirst());
 		
@@ -41,6 +41,7 @@ public class AlphaBetaNegaMax extends ArtificialIntelligence {
 		}
 		
 		Move move = new Move(maxNode.getMove().getField(), maxNode2.getMove().getField());
+		System.out.println("NODES EXPLORED: " + nodes + " in " + (System.currentTimeMillis() - time));
 		return move;
 	}
 	
@@ -57,13 +58,15 @@ public class AlphaBetaNegaMax extends ArtificialIntelligence {
 	}
 
 	private Pair<Long, AINode> alphaBetaNega(AINode state, int depth, long alpha, long beta, int step_number, int total_steps) {
+		nodes++;
 //		System.out.println("abNega " + depth + " s:" + step_number + " max:" + total_steps);
 		if(state.isTerminal() || depth == MAX_DEPTH) {
 			return new Pair<Long, AINode>(state.evaluate((depth + this.playerNumber) % 2), state);
 		} else {
 			long score = Long.MIN_VALUE;
 			AINode select = null;
-			for(AIMove childMove : getMoves(state.getBoard(), step_number + 1)) {
+			ArrayList<AIMove> moves = getMoves(state.getBoard(), step_number + 1);
+			for(AIMove childMove : moves) {
 				long value = 0;
 				Pair<Long, AINode> result;
 				if(step_number < total_steps - 1) {
@@ -79,6 +82,5 @@ public class AlphaBetaNegaMax extends ArtificialIntelligence {
 			}
 			return new Pair<Long, AINode>(score, select);
 		}
-		
 	}
 }

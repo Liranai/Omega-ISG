@@ -17,6 +17,8 @@ import java.util.Observer;
 
 import javax.swing.JPanel;
 
+import logic.ai.GwensExperimental;
+import logic.ai.HumanPlayer;
 import main.OmegaMain;
 import model.Board;
 import model.Field;
@@ -32,6 +34,7 @@ public class OmegaGamePanel extends JPanel implements Observer{
 	
 	private Board board;
 	private Field[] fields;
+	private Field selection;
 	private HashMap<Point, Pair<Integer, Integer>> heatMap;
 
 	public OmegaGamePanel(Board board) {
@@ -77,6 +80,10 @@ public class OmegaGamePanel extends JPanel implements Observer{
 
 		for (Field f : board.getFields().values()) {
 			g2.setStroke(new BasicStroke(2l));
+			if(selection != null && f.equals(selection)) {
+				g2.setColor(Color.DARK_GRAY);
+				g2.fill(f.getHex());
+			}
 			g2.setColor(new Color(131, 56, 148));
 //			if (x % 2 == 0)
 //				g2.setColor(new Color(95, 32, 40));
@@ -124,6 +131,11 @@ public class OmegaGamePanel extends JPanel implements Observer{
 
 	@Override
 	public void update(Observable o, Object arg) {
-		heatMap = (HashMap<Point, Pair<Integer, Integer>>)arg;
+		if(o.getClass().equals(GwensExperimental.class))
+			heatMap = (HashMap<Point, Pair<Integer, Integer>>)arg;
+		else if(o.getClass().equals(HumanPlayer.class)) {
+			selection = (Field)arg;
+			repaint();
+		}
 	}
 }
