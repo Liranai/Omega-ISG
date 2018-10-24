@@ -11,6 +11,7 @@ import lombok.Getter;
 import main.OmegaMain;
 import model.Board;
 import model.Field;
+import model.Move;
 import ui.OmegaFrame;
 
 @Getter
@@ -47,7 +48,21 @@ public class OmegaLogic2 extends Observable implements Runnable{
 	
 	@Override
 	public void run() {
-		
+		while(!gameOver(board)) {
+			frame.repaint();
+			
+			Move move = ais.get(turnCount - 1).getMove(board.clone());
+			
+			System.out.println("AI: " + ais.get(turnCount - 1).getName() + " move: W:"
+					+ move.getFields().get(0).getXy().x + "," + move.getFields().get(0).getXy().y + " |B:"
+					+ move.getFields().get(1).getXy().x + "," + move.getFields().get(1).getXy().y);
+			
+			if(isValidMove(move)) {
+				
+			} else {
+				System.out.println("Invalid MOVE by " + ais.get(turnCount - 1).getName());
+			}
+		}
 	}
 	
 	public boolean gameOver(Board board) {
@@ -64,4 +79,11 @@ public class OmegaLogic2 extends Observable implements Runnable{
 		return true;
 	}
 
+	public boolean isValidMove(Move move) {
+		for(Field field : move.getFields()) {
+			if(field.getValue() != 0)
+				return false;
+		}
+		return true;
+	}
 }

@@ -1,5 +1,6 @@
 package main;
 import logic.OmegaLogic;
+import logic.OmegaLogic2;
 import model.Board;
 import ui.OmegaFrame;
 
@@ -18,8 +19,8 @@ public class OmegaMain {
 
     public static void main (String[] args){
         Board b = new Board(BOARDSIZE);	
-        OmegaLogic logic = new OmegaLogic(b);
-        OmegaFrame frame = new OmegaFrame(b, logic);
+        OmegaLogic2 logic = new OmegaLogic2(b);
+        OmegaFrame frame = new OmegaFrame(b);
         
         logic.addObserver(frame.getInfoPanel());
         

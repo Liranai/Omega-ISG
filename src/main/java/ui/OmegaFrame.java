@@ -20,7 +20,7 @@ public class OmegaFrame extends JFrame{
     private OmegaGamePanel boardPanel;
     private OmegaInfoPanel infoPanel;
 
-    public OmegaFrame(Board board, MouseListener listener) {
+    public OmegaFrame(Board board) {
         super("MainFrame");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true);
@@ -29,7 +29,7 @@ public class OmegaFrame extends JFrame{
         setLayout(new BorderLayout());
         boardPanel = new OmegaGamePanel(board);
 
-        boardPanel.addMouseListener(listener);
+//        boardPanel.addMouseListener(listener);
         infoPanel = new OmegaInfoPanel();
         
         System.out.println("BPx: " + boardPanel.getMinimumSize().width + " BPy: " + boardPanel.getMinimumSize().height);

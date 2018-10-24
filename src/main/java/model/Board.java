@@ -17,7 +17,7 @@ public class Board {
 	public static final int[][] DIRECTIONS = { {0, -1}, {1, -1}, {1, 0}, {0,1}, {-1, 1}, {-1, 0}}; 
 	public int boardSize;
 	public HashMap<Point, Field> fields;
-	public HashMap<Point, Field> parents_white, parents_black;
+	public HashMap<Field, Integer> parents_white, parents_black;
 	public long[] hashedFields;
 	
 	public static long[] hashedEmpty, hashedWhites, hashedBlacks;
@@ -62,11 +62,12 @@ public class Board {
 		}
 		if(OmegaMain.DEBUG >= 2)
 			for(int i = 0; i< hashedFields.length; i++) {
-	//			System.out.println(hashedEmpty[i] + " " + hashedWhites[i] + " " + hashedBlacks[i]);
+	//			System.out.println(hashedEmpty[i] + " " + hashedWhites[i] + " " + hashedvalueBlacks[i]);
 				System.out.println(hashedWhites[i] ^ hashedBlacks[i]);
 			}
 		
-		parents = new HashMap<Point, Field>();
+		parents_white = new HashMap<Field, Integer>();
+		parents_black = new HashMap<Field, Integer>();
 		fields = new HashMap<Point, Field>();
 		
 		for(int i = 1-n; i < n; i++) {
@@ -80,18 +81,36 @@ public class Board {
 		createLinking();
 	}
 	
-	private Board (HashMap<Point, Field> fields, int boardSize, long[] hashedFields, HashMap<Point, Field> parents) {
+	private Board (HashMap<Point, Field> fields, int boardSize, long[] hashedFields, HashMap<Field, Integer> parents_white, HashMap<Field, Integer> parents_black) {
 		this.fields = fields;
 		this.hashedFields = hashedFields;
 		createLinking();
 		this.boardSize = boardSize;
-		this.parents = parents;
+		this.parents_white = parents_white;
+		this.parents_black = parents_black;
 	}
 	
+	
+	/**
+	 * Make sure colour is 1-4, does not check for erros.
+	 *
+	 * @param p location of field
+	 * @param colour player number ranging from 1 to 4
+	 */
 	public void placeStone(Point p, int colour) {
 		Field target = fields.get(p);
 		target.setValue(colour);
-		for(Field field : target.getNeighbours()) {
+		for(Field neighbour : target.getNeighbours()) {
+			if(neighbour != null && neighbour.getParent() != null) {
+				if(neighbour.getValue() == target.getValue()) {
+					if(colour == 1) {
+						parents_white.putIfAbsent(p, target);
+					} else if(colour == 2){
+						parents_black.putIfAbsent(p, target);
+					}
+				}
+			}
+			
 //			if(field != null && field.getParent() != null && 
 //					field.getValue() == target.getValue()) {
 //				Field parent = target.getParent();
@@ -233,11 +252,15 @@ public class Board {
 		for(Point point : fields.keySet()) {
 			clonedFields.put(new Point(point.x, point.y), fields.get(point).clone());
 		}
-		HashMap<Point, Field> clonedParents = new HashMap<Point, Field>();
-		for(Point point : parents.keySet()) {
-			clonedParents.put(new Point(point.x, point.y), fields.get(point).clone());
+		HashMap<Point, Field> clonedWhiteParents = new HashMap<Point, Field>();
+		for(Point point : parents_white.keySet()) {
+			clonedWhiteParents.put(new Point(point.x, point.y), fields.get(point).clone());
 		}
-		return new Board(clonedFields, boardSize, hashedFields, clonedParents);
+		HashMap<Point, Field> clonedBlackParents = new HashMap<Point, Field>();
+		for(Point point : parents_black.keySet()) {
+			clonedBlackParents.put(new Point(point.x, point.y), fields.get(point).clone());
+		}
+		return new Board(clonedFields, boardSize, hashedFields, clonedWhiteParents, clonedBlackParents);
 	}
 	
 	private void createLinking() {
