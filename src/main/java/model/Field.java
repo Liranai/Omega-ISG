@@ -24,19 +24,20 @@ public class Field {
 	private Field[] neighbours; // List of all neighbours going in order: TL, TR, R, BR, BL, L
 	@Setter
 	private int value = 0; // 0 is empty, every number corresponds to the player number;
-	private Piece piece; // Piece placed on the field. If piece == null, field is empty
+	@Setter
+	private Field parent;
+	@Setter
+	private int group_size = 0;
 	
 	public Field(int x, int y) {
 		xy = new Point(x, y);
 		neighbours = new Field[6];
-		piece = null;
 	}
 	
 	public Field(Point p) {
 	 	xy = p;
 	 	neighbours = new Field[6];
 	 	createHex();
-	 	piece = null;
 	}
 	
 	private Field(Point p, int value, Polygon hex) {
@@ -48,7 +49,6 @@ public class Field {
 	
 	public void setNeighbour(Field neighbour, Neighbour pos) {
 		neighbours[pos.ordinal()] = neighbour;
-		createHex();
 	}
 	
 	public void createHex() {
@@ -77,7 +77,7 @@ public class Field {
 	
 	@Override
 	public Field clone() {
-		return new Field(new Point(xy.x, xy.y), value, new Polygon(hex.xpoints, hex.ypoints, 6));
+		return new Field(new Point(xy.x, xy.y), value, hex);
 	}
 	
 	@Override

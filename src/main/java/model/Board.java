@@ -17,6 +17,7 @@ public class Board {
 	public static final int[][] DIRECTIONS = { {0, -1}, {1, -1}, {1, 0}, {0,1}, {-1, 1}, {-1, 0}}; 
 	public int boardSize;
 	public HashMap<Point, Field> fields;
+	public HashMap<Point, Field> parents_white, parents_black;
 	public long[] hashedFields;
 	
 	public static long[] hashedEmpty, hashedWhites, hashedBlacks;
@@ -59,13 +60,13 @@ public class Board {
 			uniqueHashes.add(rand_num);
 			hashedBlacks[i] = rand_num;
 		}
-		if(OmegaMain.DEBUG >= 3)
+		if(OmegaMain.DEBUG >= 2)
 			for(int i = 0; i< hashedFields.length; i++) {
 	//			System.out.println(hashedEmpty[i] + " " + hashedWhites[i] + " " + hashedBlacks[i]);
 				System.out.println(hashedWhites[i] ^ hashedBlacks[i]);
 			}
 		
-		
+		parents = new HashMap<Point, Field>();
 		fields = new HashMap<Point, Field>();
 		
 		for(int i = 1-n; i < n; i++) {
@@ -79,11 +80,36 @@ public class Board {
 		createLinking();
 	}
 	
-	private Board (HashMap<Point, Field> fields, int boardSize, long[] hashedFields) {
+	private Board (HashMap<Point, Field> fields, int boardSize, long[] hashedFields, HashMap<Point, Field> parents) {
 		this.fields = fields;
 		this.hashedFields = hashedFields;
 		createLinking();
 		this.boardSize = boardSize;
+		this.parents = parents;
+	}
+	
+	public void placeStone(Point p, int colour) {
+		Field target = fields.get(p);
+		target.setValue(colour);
+		for(Field field : target.getNeighbours()) {
+//			if(field != null && field.getParent() != null && 
+//					field.getValue() == target.getValue()) {
+//				Field parent = target.getParent();
+//				do {
+//					parent = parent.getParent(); 
+//				}while(parent != parent.getParent());
+//				target.setGroup_size(target.getGroup_size() + parent.getGroup_size() + 1);
+//				parent.setParent(target);
+//				parents.remove(parent.getXy());
+//			}
+			if(field.getParent() != null)
+			if(parents.containsValue(field.getXy())){
+				parents.remove(field.getXy());
+			}
+			parents.putIfAbsent(p, target);
+		}
+		
+		System.out.println(parents);
 	}
 	
 	public Point indexToPoint(int index) {
@@ -207,7 +233,11 @@ public class Board {
 		for(Point point : fields.keySet()) {
 			clonedFields.put(new Point(point.x, point.y), fields.get(point).clone());
 		}
-		return new Board(clonedFields, boardSize, hashedFields);
+		HashMap<Point, Field> clonedParents = new HashMap<Point, Field>();
+		for(Point point : parents.keySet()) {
+			clonedParents.put(new Point(point.x, point.y), fields.get(point).clone());
+		}
+		return new Board(clonedFields, boardSize, hashedFields, clonedParents);
 	}
 	
 	private void createLinking() {

@@ -30,10 +30,10 @@ public class OmegaLogic extends Observable implements MouseListener, Runnable{
 		turnCount = 1;
 		
 		ais = new ArrayList<ArtificialIntelligence>();
-		GwensExperimental gw = new GwensExperimental(0);
-		ais.add(gw);
+//		GwensExperimental gw = new GwensExperimental(0);
+//		ais.add(gw);
 		
-		AlphaBetaNegaMax abnm = new AlphaBetaNegaMax(1);
+		AlphaBetaNegaMax abnm = new AlphaBetaNegaMax(0);
 		ais.add(abnm);
 		
 		
@@ -41,10 +41,10 @@ public class OmegaLogic extends Observable implements MouseListener, Runnable{
 //		ais.add(gw2);
 //		HumanPlayer human = new HumanPlayer(1);
 //		ais.add(human);
-//		for (int i = 1; i < OmegaMain.NUMBER_OF_PLAYERS; i++) {
-//			RandomMover mover = new RandomMover(i);
-//			ais.add(mover);
-//		}
+		for (int i = 1; i < OmegaMain.NUMBER_OF_PLAYERS; i++) {
+			RandomMover mover = new RandomMover(i);
+			ais.add(mover);
+		}
 	}
 	
 	public void addFrame(OmegaFrame frame) {
@@ -72,7 +72,8 @@ public class OmegaLogic extends Observable implements MouseListener, Runnable{
 			
 			if(validMove(move)) {
 				for (int i = 0; i < move.getFields().size(); i++) {
-					board.getFields().get(move.getFields().get(i).getXy()).setValue(i + 1);
+					board.placeStone(move.getFields().get(i).getXy(), i + 1);
+//					board.getFields().get(move.getFields().get(i).getXy()).setValue(i + 1);
 				}
 				turnCount %= OmegaMain.NUMBER_OF_PLAYERS;
 				turnCount++;
