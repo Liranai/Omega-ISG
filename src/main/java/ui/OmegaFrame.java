@@ -7,9 +7,11 @@ import java.awt.event.ComponentListener;
 import java.awt.event.MouseListener;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 
 import lombok.Getter;
+import main.OmegaMain;
 import model.Board;
 import model.Field;
 
@@ -20,7 +22,7 @@ public class OmegaFrame extends JFrame{
     private OmegaGamePanel boardPanel;
     private OmegaInfoPanel infoPanel;
 
-    public OmegaFrame(Board board) {
+    public OmegaFrame(Board board, OmegaMain main) {
         super("MainFrame");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true);
@@ -40,9 +42,17 @@ public class OmegaFrame extends JFrame{
         boardPanel.setPreferredSize(boardPanel.getMinimumSize());
         infoPanel.setPreferredSize(infoPanel.getMinimumSize());
         
+//        
+//        JMenuBar bar = new JMenuBar();
+//        JMenuItem undo = new JMenuItem("UNDO");
+//        undo.addActionListener(main);
+//        
+//        bar.add(undo);
+//        this.setJMenuBar(bar);
         
         add(boardPanel, BorderLayout.WEST);
         add(infoPanel, BorderLayout.EAST);
+        
         
         addComponentListener(new ComponentListener() {
             public void componentResized(ComponentEvent evt) {

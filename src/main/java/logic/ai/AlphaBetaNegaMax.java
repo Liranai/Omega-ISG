@@ -27,6 +27,11 @@ public class AlphaBetaNegaMax extends ArtificialIntelligence {
 	
 	public Move getMove(Board board) {
 		nodes = 0;
+		turn_counter++;
+		if(turn_counter > 5)
+			MAX_DEPTH = 3;
+		if(turn_counter > 8)
+			MAX_DEPTH = 4;
 		long time = System.currentTimeMillis();
 		
 		AINode root = new AINode(board.clone(),null,null);

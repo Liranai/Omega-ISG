@@ -14,7 +14,7 @@ import model.util.Pair;
 
 public class GwensExperimental extends ArtificialIntelligence{
 
-	public static int MAX_DEPTH = 1;
+	public static int MAX_DEPTH = 2;
 	public static final int PROMISING_FIELDS_TO_CONSIDER = 10;
 	
 	private int turn_counter;
@@ -34,6 +34,11 @@ public class GwensExperimental extends ArtificialIntelligence{
 	@Override
 	public Move getMove(Board board) {
 		nodes = 0;
+		turn_counter++;
+		if(turn_counter > 5)
+			MAX_DEPTH = 3;
+		if(turn_counter > 8)
+			MAX_DEPTH = 4;
 		long time = System.currentTimeMillis();
 //		turn_counter++;
 		

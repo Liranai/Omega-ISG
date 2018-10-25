@@ -19,11 +19,13 @@ public class Board {
 	public HashMap<Point, Field> fields;
 	public HashMap<Field, Integer> parents_white, parents_black;
 	public long[] hashedFields;
+	public long hash;
 	
 	public static long[] hashedEmpty, hashedWhites, hashedBlacks;
 	
 	public Board (int n) {
 		boardSize = n;
+		hash = 0;
 		OmegaGamePanel.CENTER_OFFSET_X = (n -1) * OmegaGamePanel.SQUARESIZE;
 		OmegaGamePanel.CENTER_OFFSET_Y = (int)(Math.ceil((n - 1) * 0.75 * OmegaGamePanel.SQUARESIZE + 5));
 		
@@ -43,6 +45,7 @@ public class Board {
 			}
 			uniqueHashes.add(rand_num);
 			hashedEmpty[i] = rand_num;
+			hash = hash ^ rand_num;
 		}
 		for(int i = 0; i< hashedFields.length; i++) {
 			long rand_num = rand.nextInt(Integer.MAX_VALUE);
@@ -63,7 +66,7 @@ public class Board {
 		if(OmegaMain.DEBUG >= 2)
 			for(int i = 0; i< hashedFields.length; i++) {
 	//			System.out.println(hashedEmpty[i] + " " + hashedWhites[i] + " " + hashedvalueBlacks[i]);
-				System.out.println(hashedWhites[i] ^ hashedBlacks[i]);
+//				System.out.println(hashedWhites[i] ^ hashedBlacks[i]);
 			}
 		
 		parents_white = new HashMap<Field, Integer>();
@@ -90,45 +93,69 @@ public class Board {
 		this.parents_black = parents_black;
 	}
 	
+//	public void undoMove(Move move) {
+//		for (int i = 0; i < move.getFields().size(); i++) {
+////			board.placeStone(move.getFields().get(i).getXy(), i + 1);
+//			Field target = move.getFields().get(i);
+//		}
+//	}
 	
 	/**
-	 * Make sure colour is 1-4, does not check for erros.
+	 * Make sure colour is 1-2, does not check for errors.
 	 *
 	 * @param p location of field
 	 * @param colour player number ranging from 1 to 4
 	 */
 	public void placeStone(Point p, int colour) {
+//		System.out.println("Placing Stone: " + p);
 		Field target = fields.get(p);
+		target.setParent(target.getXy());
 		target.setValue(colour);
+		int group_size = 1;
+		
+		int index  = pointToIndex(p);
+		hash = hash ^ (hashedFields[index]);
+		hash = hash ^ (colour == 1 ? hashedWhites[index] :hashedBlacks[index]);
+		
+		HashSet<Field> neighbour_parents = new HashSet<Field>();
 		for(Field neighbour : target.getNeighbours()) {
 			if(neighbour != null && neighbour.getParent() != null) {
+//				System.out.println("Searching Neighbour: " + neighbour.getXy());
 				if(neighbour.getValue() == target.getValue()) {
-					if(colour == 1) {
-						parents_white.putIfAbsent(p, target);
-					} else if(colour == 2){
-						parents_black.putIfAbsent(p, target);
-					}
+					Field parent = fields.get(neighbour.getParent());
+//					System.out.println(target.getXy() + " " + neighbour.getXy() + " " + neighbour.getParent());
+					do {
+						parent = fields.get(parent.getParent());
+					}while(!parent.getXy().equals(parent.getParent()));
+					neighbour_parents.add(parent);
 				}
 			}
-			
-//			if(field != null && field.getParent() != null && 
-//					field.getValue() == target.getValue()) {
-//				Field parent = target.getParent();
-//				do {
-//					parent = parent.getParent(); 
-//				}while(parent != parent.getParent());
-//				target.setGroup_size(target.getGroup_size() + parent.getGroup_size() + 1);
-//				parent.setParent(target);
-//				parents.remove(parent.getXy());
-//			}
-			if(field.getParent() != null)
-			if(parents.containsValue(field.getXy())){
-				parents.remove(field.getXy());
-			}
-			parents.putIfAbsent(p, target);
 		}
+		for(Field parent : neighbour_parents) {
+//			group_size += parent.getGroup_size();
+			parent.setParent(target.getXy());
+			if(colour == 1) {
+				group_size += parents_white.remove(parent);
+			}else {
+				group_size += parents_black.remove(parent);
+			}
+		}
+		if(colour == 1) {
+			parents_white.put(target, group_size);
+		}else {
+			parents_black.put(target, group_size);
+		}
+//		target.setGroup_size(group_size);
 		
-		System.out.println(parents);
+		if(OmegaMain.DEBUG > 3) {
+		System.out.println("Parents: ");
+			if(neighbour_parents.size() != 0) {
+				for(Field field : neighbour_parents) {
+					System.out.print("\t" + field.getXy());
+				}
+			}
+			System.out.println();
+		}
 	}
 	
 	public Point indexToPoint(int index) {
@@ -193,33 +220,48 @@ public class Board {
 	}
 	
 	public long[] getScore() {
-		Board tempBoard = this.clone();
-		
-		ArrayList<ArrayList<Integer>> playerGroups = new ArrayList<ArrayList<Integer>>();
-		for(int i = 0; i< OmegaMain.NUMBER_OF_PLAYERS; i++) {
-			ArrayList<Integer> groups = new ArrayList<Integer>();
-			playerGroups.add(groups);
-		}
-		
-		for(Field f : tempBoard.getFields().values()) {
-			if(f.getValue() != 0) {
-				int value = f.getValue();
-				int n = countGroup(tempBoard, f, 0, value);
-				playerGroups.get(value - 1).add(n);
-			}
-		}
-		
 		long[] scores = new long[OmegaMain.NUMBER_OF_PLAYERS];
-		for(int i = 0; i< OmegaMain.NUMBER_OF_PLAYERS; i++) {
-			long score = 1;
-			for(int j = 0; j < playerGroups.get(i).size(); j++) {
-				if(playerGroups.get(i).get(j) != 0)
-					score *= playerGroups.get(i).get(j);
-			}
-			scores[i] = score;
+		long score = 1;
+		for(Integer inter : parents_white.values()) {
+			score *= inter;
 		}
+		scores[0] = score;
+		score = 1;
+		for(Integer inter : parents_black.values()) {
+			score *= inter;
+		}
+		scores[1] = score;
 		return scores;
 	}
+	
+//	public long[] getScore() {
+//		Board tempBoard = this.clone();
+//		
+//		ArrayList<ArrayList<Integer>> playerGroups = new ArrayList<ArrayList<Integer>>();
+//		for(int i = 0; i< OmegaMain.NUMBER_OF_PLAYERS; i++) {
+//			ArrayList<Integer> groups = new ArrayList<Integer>();
+//			playerGroups.add(groups);
+//		}
+//		
+//		for(Field f : tempBoard.getFields().values()) {
+//			if(f.getValue() != 0) {
+//				int value = f.getValue();
+//				int n = countGroup(tempBoard, f, 0, value);
+//				playerGroups.get(value - 1).add(n);
+//			}
+//		}
+//		
+//		long[] scores = new long[OmegaMain.NUMBER_OF_PLAYERS];
+//		for(int i = 0; i< OmegaMain.NUMBER_OF_PLAYERS; i++) {
+//			long score = 1;
+//			for(int j = 0; j < playerGroups.get(i).size(); j++) {
+//				if(playerGroups.get(i).get(j) != 0)
+//					score *= playerGroups.get(i).get(j);
+//			}
+//			scores[i] = score;
+//		}
+//		return scores;
+//	}
 	
 	public ArrayList<Field> getFieldRange(int low, int high) {
 		ArrayList<Field> tempFields = new ArrayList<Field>();
@@ -252,13 +294,13 @@ public class Board {
 		for(Point point : fields.keySet()) {
 			clonedFields.put(new Point(point.x, point.y), fields.get(point).clone());
 		}
-		HashMap<Point, Field> clonedWhiteParents = new HashMap<Point, Field>();
-		for(Point point : parents_white.keySet()) {
-			clonedWhiteParents.put(new Point(point.x, point.y), fields.get(point).clone());
+		HashMap<Field, Integer> clonedWhiteParents = new HashMap<Field, Integer>();
+		for(Field point : parents_white.keySet()) {
+			clonedWhiteParents.put(point.clone(), parents_white.get(point));
 		}
-		HashMap<Point, Field> clonedBlackParents = new HashMap<Point, Field>();
-		for(Point point : parents_black.keySet()) {
-			clonedBlackParents.put(new Point(point.x, point.y), fields.get(point).clone());
+		HashMap<Field, Integer> clonedBlackParents = new HashMap<Field, Integer>();
+		for(Field point : parents_black.keySet()) {
+			clonedBlackParents.put(point.clone(), parents_black.get(point));
 		}
 		return new Board(clonedFields, boardSize, hashedFields, clonedWhiteParents, clonedBlackParents);
 	}

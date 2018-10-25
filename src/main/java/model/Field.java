@@ -25,9 +25,9 @@ public class Field {
 	@Setter
 	private int value = 0; // 0 is empty, every number corresponds to the player number;
 	@Setter
-	private Field parent;
-	@Setter
-	private int group_size = 0;
+	private Point parent;
+//	@Setter
+//	private int group_size = 0;
 	
 	public Field(int x, int y) {
 		xy = new Point(x, y);
@@ -40,10 +40,12 @@ public class Field {
 	 	createHex();
 	}
 	
-	private Field(Point p, int value, Polygon hex) {
+	private Field(Point p, int value, Polygon hex, Point parent){
 		this.xy = p;
 		this.value = value;
 		this.hex = hex;
+		this.parent = parent;
+//		this.group_size = group_size;
 		neighbours = new Field[6];
 	}
 	
@@ -77,7 +79,7 @@ public class Field {
 	
 	@Override
 	public Field clone() {
-		return new Field(new Point(xy.x, xy.y), value, hex);
+		return new Field(new Point(xy.x, xy.y), value, hex, parent);
 	}
 	
 	@Override

@@ -1,14 +1,18 @@
 package main;
-import logic.OmegaLogic;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import logic.OmegaLogic2;
 import model.Board;
 import ui.OmegaFrame;
 
-public class OmegaMain {
+public class OmegaMain implements ActionListener {
 	
 	public static final int DEBUG = 2;
 	public static final int NUMBER_OF_PLAYERS = 2;
-	public static final int BOARDSIZE = 6;
+	public static final int BOARDSIZE = 5;
+	public static Thread t;
+	public static OmegaLogic2 logic;
 	
 	public enum players {
 		White,
@@ -16,18 +20,35 @@ public class OmegaMain {
 		Red,
 		Blue;
 	}
-
-    public static void main (String[] args){
-        Board b = new Board(BOARDSIZE);	
-        OmegaLogic2 logic = new OmegaLogic2(b);
-        OmegaFrame frame = new OmegaFrame(b);
+	
+	public OmegaMain() {
+		Board b = new Board(BOARDSIZE);	
+        logic = new OmegaLogic2(b);
+        OmegaFrame frame = new OmegaFrame(b, this);
         
         logic.addObserver(frame.getInfoPanel());
         
         logic.addFrame(frame);
-        Thread t = new Thread(logic);
+        t = new Thread(logic);
         t.start();
+	}
+
+    public static void main (String[] args){
+        new OmegaMain();
     }
+    
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+//		System.out.println("GOT CAUGHT");
+//		System.out.println(logic.getBoard());
+//    	t.interrupt();
+//    	t.destroy();
+//    	logic.setBoard(logic.getBoard_history().get(logic.getBoard_history().size() - 2));
+//    	System.out.println(logic.getBoard());
+//    	logic.getFrame().repaint();
+//    	t = new Thread(logic);
+//    	t.start();
+	}
     
     //TODO: Multithread move generation??
     //TODO: Zorbist hash the field/board

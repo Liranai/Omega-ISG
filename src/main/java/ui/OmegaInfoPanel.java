@@ -13,8 +13,7 @@ import java.util.Observer;
 
 import javax.swing.JPanel;
 
-import logic.OmegaLogic;
-import logic.ai.ArtificialIntelligence;
+import logic.OmegaLogic2;
 import lombok.Getter;
 import main.OmegaMain;
 import model.util.Pair;
@@ -53,7 +52,7 @@ public class OmegaInfoPanel extends JPanel implements Observer {
 	public void update(Observable arg0, Object arg1) {
 		ArrayList<Pair<String, String>> pairs = new ArrayList<Pair<String, String>>();
 		for (int i = 0; i < OmegaMain.NUMBER_OF_PLAYERS; i++) {
-			pairs.add(new Pair<String, String>(((OmegaLogic) arg0).getAis().get(i).getName(), "" + ((OmegaLogic) arg0).getBoard().getScore()[i]));
+			pairs.add(new Pair<String, String>(((OmegaLogic2) arg0).getAis().get(i).getName(), "" + ((OmegaLogic2) arg0).getBoard().getScore()[i]));
 		}
 
 		info = new Info(pairs);
